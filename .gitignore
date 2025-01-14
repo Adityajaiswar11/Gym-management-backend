@@ -1,0 +1,65 @@
+
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+
+# Build and output directories
+dist/
+build/
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.pid
+*.pid.lock
+
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+*.iml
+
+# Test coverage reports
+coverage/
+
+# Optional npm cache directory
+.npm/
+
+# Debugging and runtime files
+debug.log
+error.log
+*.stacktrace
+
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Miscellaneous
+*.zip
+*.tar
+*.gz
+
+# Local .git configuration
+.git/
+
+# Ignore yarn files if not using Yarn
+.yarn/
+.yarnrc
