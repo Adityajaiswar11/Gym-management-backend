@@ -59,7 +59,7 @@ const login = async (req, res) => {
         res.json({
             message: "Logged in successfully",
             token,
-            user: { id: user._id, email: user.email, name: user.name }, // Return safe user info
+            user: { id: user._id, email: user.email, name: user.name }
         });
     } catch (err) {
         console.error(err.message);
@@ -70,12 +70,17 @@ const login = async (req, res) => {
 const forgetPassword = async (req, res) => {
     try {
         const { email } = req.body;
-
-        // Check if the user exists
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        // Generate a password reset token
+        const resetToken = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" } // Token valid for 1 hour
+        );
 
         // Configure the email transporter
         const transporter = nodemailer.createTransport({
@@ -86,29 +91,21 @@ const forgetPassword = async (req, res) => {
             },
         });
 
-        await user.save(); // Save the token to the user in the database
+        // Generate the reset password link
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
         // Email content
-        // const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-        
         const mailOptions = {
             to: email,
-            subject: "Aditya love you so much",
+            subject: "Password Reset Request",
             html: `
-                <p>Hi, my love ${user.name},</p>
-                <p>As I sit down to put my thoughts into words, I can’t help but smile at how lucky I am to have you in my life. You are my sunshine on the cloudiest days, my calm in the chaos, and the reason my heart beats with so much joy</p>
-                <p>Every moment with you feels like magic. From the way your eyes light up when you laugh to the warmth of your hand in mine, you make my world infinitely brighter. You have this incredible ability to make even the simplest moments feel extraordinary—whether it’s sharing a quiet meal, walking under the stars, or simply talking about life</p>
-                <p>I want you to know how deeply I admire you. Your kindness, strength, and the way you see the beauty in everything inspire me to be a better person every single day. You make me believe in love, in dreams, and in the infinite possibilities of life</p>
-                <p>I want you to know that I love you too. I want you to feel the same way I do. I want you to know that I'm always there for you, no matter how far away we are. And I want you to know that I love you the way you are.Thank you for being my partner, my confidant, and my greatest support. Thank you for loving me with all your heart and for allowing me to love you with all of mine. You’ve turned my world into a place where love is boundless, and happiness knows no limits.
-
-I can’t wait to create more memories with you—traveling to places we’ve always dreamed of, dancing to our favorite songs, and building a life that reflects the love we share. With you by my side, I feel like I can conquer anything.</p>
- <P>Always remember this: You are my everything. My heart is yours, today and forever. I love you more than words could ever express, and I promise to cherish you every single day of my life.</p>
-
+                <h2>Password Reset Request</h2>
+                <p>Hi ${user.name || "User"},</p>
+                <p>You requested to reset your password. Please click the link below to reset your password:</p>
+                <a href="${resetLink}" style="text-decoration: none; color: #007bff; font-weight: bold;">Reset Password</a>
+                <p>This link is valid for 1 hour. If you did not request this, please ignore this email.</p>
                 <br />
-                <p>With all my love,</p>
-                <p>YOUR MAN ADITYA</p>
-               
-                
+                <p>Thank you,</p>
             `,
         };
 
@@ -126,5 +123,6 @@ I can’t wait to create more memories with you—traveling to places we’ve al
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
 
 module.exports = { createUser,login,forgetPassword }
